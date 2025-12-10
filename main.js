@@ -1,8 +1,8 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const { runPythonScript, getScriptPath } = require('./python-env');
 
 let mainWindow;
 
@@ -79,8 +79,7 @@ ipcMain.handle('save-file', async (event, options) => {
 
 ipcMain.handle('run-python-tool', async (event, operation, inputPath, outputPath) => {
   return new Promise((resolve, reject) => {
-    const pythonScript = path.join(__dirname, 'ido_tool.py');
-    const pythonProcess = spawn('python', [pythonScript, operation, inputPath, outputPath]);
+    const pythonProcess = runPythonScript('ido_tool.py', [operation, inputPath, outputPath]);
     
     let logs = [];
     let resultData = null;
@@ -144,8 +143,7 @@ ipcMain.handle('run-python-tool', async (event, operation, inputPath, outputPath
 // DDS Converter Handler
 ipcMain.handle('run-dds-converter', async (event, operation, inputPath, outputPath) => {
   return new Promise((resolve, reject) => {
-    const pythonScript = path.join(__dirname, 'dds_converter.py');
-    const pythonProcess = spawn('python', [pythonScript, operation, inputPath, outputPath]);
+    const pythonProcess = runPythonScript('dds_converter.py', [operation, inputPath, outputPath]);
     
     let logs = [];
     let resultData = null;
