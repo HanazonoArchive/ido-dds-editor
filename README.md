@@ -1,18 +1,6 @@
 # IDO & DDS Compiler, Decompiler & Converter
 
-A modern, standalone GUI application for compiling and decompiling `.ido` game asset files. Built with Electron and Python.
-
-## Features
-
-- **Modern Dark Theme UI** - Clean, professional interface with smooth animations
-- **Real-time Console Output** - See detailed logs of compilation/decompilation process
-- **Dual Mode Operation**:
-  - **Decompile**: Extract `.ido` files to XML, textures (DDS, TGA, BMP, PNG), or CSV (shop database)
-  - **Compile**: Convert XML/binary files back to `.ido` format
-- **DDS Image Converter**: Convert between DDS and PNG formats for texture editing
-- **Smart File Detection** - Automatically detects file types and handles accordingly
-- **Metadata Preservation** - Saves and restores file headers via `.meta` files
-- **EUC-KR Encoding Support** - Proper handling of Korean text encoding
+A modern, standalone GUI application for compiling, decompiling, converting `.ido` `.dds` game asset files. Built with Electron and Python.
 
 ## Supported File Types
 
@@ -98,75 +86,14 @@ npm run dev
 - PNG to DDS: Creates uncompressed DDS file (compatible with most games)
 - For compressed DDS formats (BC3/DXT5), use specialized tools
 
-## File Structure
-
-```
-ido-editor/
-├── main.js           # Electron main process (IPC handlers)
-├── renderer.js       # Frontend JavaScript (UI logic)
-├── ido_tool.py       # Python backend (compile/decompile logic)
-├── index.html        # Application UI structure
-├── styles.css        # Modern styling and animations
-├── package.json      # Node.js dependencies
-└── README.md         # This file
-```
-
-## Technical Details
-
-### Python Backend
-
-The `ido_tool.py` script handles:
-- Zlib compression/decompression
-- EUC-KR encoding/decoding
-- File type detection
-- Binary structure parsing
-- Metadata management
-
-### Electron Frontend
-
-- **IPC Communication**: Bidirectional communication between Python process and UI
-- **Real-time Logging**: Live output streaming from Python to console
-- **File Dialogs**: Native OS file/folder selection
-- **Tab Navigation**: Separate interfaces for compile and decompile operations
-
 ## Console Log Levels
 
 - **INFO** (Blue): General information and progress
 - **SUCCESS** (Green): Successful operation completion
 - **WARNING** (Orange): Non-critical issues
 - **ERROR** (Red): Critical failures
-
-## Troubleshooting
-
-### Python not found
-Ensure Python is in your system PATH or modify `main.js` to use absolute Python path:
-```javascript
-const pythonProcess = spawn('C:\\Python\\python.exe', [pythonScript, ...]);
-```
-
-### Missing .meta file
-When compiling binary files, ensure the `.meta` file exists in the same directory with the same base name.
-
-### Encoding issues
-The tool uses EUC-KR encoding for text. Some characters may not map correctly between UTF-8 and EUC-KR.
-
-## Development
-
-### Enable Developer Tools
-
-Uncomment in `main.js`:
-```javascript
-mainWindow.webContents.openDevTools();
-```
-
-### Python Logging
-
-All Python output is captured and displayed in the console. Add `log()` calls in `ido_tool.py` for debugging.
-
-## License
-
-ISC
-
+  
 ## Credits
 
-Based on the original Rust implementation of the IDO compiler/decompiler.
+Based on the original Rust implementation of the IDO compiler/decompiler/converter.
+[ultimatuuuum](https://github.com/ultimatuuuum)
