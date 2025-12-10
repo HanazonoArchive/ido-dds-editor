@@ -11,6 +11,11 @@ let state = {
     input: null,
     output: null
   },
+  ddsConvert: {
+    input: null,
+    output: null,
+    direction: 'dds-to-png' // or 'png-to-dds'
+  },
   currentTab: 'decompile',
   isProcessing: false
 };
@@ -35,6 +40,17 @@ const elements = {
   compileOutput: document.getElementById('compile-output'),
   compileOutputBtn: document.getElementById('compile-output-btn'),
   compileRunBtn: document.getElementById('compile-run-btn'),
+  
+  // DDS Converter
+  ddsInput: document.getElementById('dds-input'),
+  ddsInputBtn: document.getElementById('dds-input-btn'),
+  ddsOutput: document.getElementById('dds-output'),
+  ddsOutputBtn: document.getElementById('dds-output-btn'),
+  ddsRunBtn: document.getElementById('dds-run-btn'),
+  ddsRunText: document.getElementById('dds-run-text'),
+  ddsInputLabel: document.getElementById('dds-input-label'),
+  ddsOutputLabel: document.getElementById('dds-output-label'),
+  ddsToggleBtns: document.querySelectorAll('#dds-convert-tab .toggle-btn'),
   
   // Console
   logContainer: document.getElementById('log-container'),
@@ -103,6 +119,10 @@ function updateButtons() {
   // Compile button
   const canCompile = state.compile.input && state.compile.output && !state.isProcessing;
   elements.compileRunBtn.disabled = !canCompile;
+  
+  // DDS Converter button
+  const canConvertDds = state.ddsConvert.input && state.ddsConvert.output && !state.isProcessing;
+  elements.ddsRunBtn.disabled = !canConvertDds;
 }
 
 // Tab Switching
@@ -307,6 +327,151 @@ elements.compileRunBtn.addEventListener('click', async () => {
     } else {
       addLog('========================================');
       addLog(`✗ Compilation failed: ${result.error}`, 'ERROR');
+      addLog('========================================');
+      updateStatus('Failed', result.error);
+    }
+  } catch (error) {
+    addLog('========================================');
+    addLog(`✗ Critical error: ${error.message}`, 'ERROR');
+    addLog('========================================');
+    updateStatus('Error', error.message);
+  } finally {
+    setProcessing(false);
+  }
+});
+
+// DDS Converter Toggle Handlers
+elements.ddsToggleBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const direction = btn.dataset.direction;
+    if (state.ddsConvert.direction === direction) return;
+    
+    // Update state
+    state.ddsConvert.direction = direction;
+    
+    // Update toggle buttons
+    elements.ddsToggleBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    // Update UI labels
+    if (direction === 'dds-to-png') {
+      elements.ddsInputLabel.innerHTML = '<span class="label-icon">🖼️</span> Select DDS File';
+      elements.ddsInput.placeholder = 'No DDS file selected...';
+      elements.ddsOutputLabel.innerHTML = '<span class="label-icon">💾</span> Output PNG File';
+      elements.ddsOutput.placeholder = 'Output .png file path...';
+      elements.ddsRunText.textContent = 'Convert DDS to PNG';
+    } else {
+      elements.ddsInputLabel.innerHTML = '<span class="label-icon">📄</span> Select PNG File';
+      elements.ddsInput.placeholder = 'No PNG file selected...';
+      elements.ddsOutputLabel.innerHTML = '<span class="label-icon">💾</span> Output DDS File';
+      elements.ddsOutput.placeholder = 'Output .dds file path...';
+      elements.ddsRunText.textContent = 'Convert PNG to DDS';
+    }
+    
+    // Clear selections
+    state.ddsConvert.input = null;
+    state.ddsConvert.output = null;
+    elements.ddsInput.value = '';
+    elements.ddsOutput.value = '';
+    
+    updateButtons();
+    addLog(`Switched to ${direction === 'dds-to-png' ? 'DDS→PNG' : 'PNG→DDS'} mode`);
+  });
+});
+
+// DDS Converter Input Handler
+elements.ddsInputBtn.addEventListener('click', async () => {
+  const isDdsToPng = state.ddsConvert.direction === 'dds-to-png';
+  const filePath = await ipcRenderer.invoke('select-file', {
+    filters: isDdsToPng 
+      ? [
+          { name: 'DDS Files', extensions: ['dds'] },
+          { name: 'All Files', extensions: ['*'] }
+        ]
+      : [
+          { name: 'PNG Files', extensions: ['png'] },
+          { name: 'All Files', extensions: ['*'] }
+        ]
+  });
+  
+  if (filePath) {
+    state.ddsConvert.input = filePath;
+    elements.ddsInput.value = filePath;
+    addLog(`Selected ${isDdsToPng ? 'DDS' : 'PNG'} file: ${path.basename(filePath)}`);
+    
+    // Auto-suggest output path
+    if (!state.ddsConvert.output) {
+      const baseName = path.basename(filePath, path.extname(filePath));
+      const dirName = path.dirname(filePath);
+      const ext = isDdsToPng ? '.png' : '.dds';
+      const suggestedOutput = path.join(dirName, baseName + ext);
+      state.ddsConvert.output = suggestedOutput;
+      elements.ddsOutput.value = suggestedOutput;
+    }
+    
+    updateButtons();
+  }
+});
+
+// DDS Converter Output Handler
+elements.ddsOutputBtn.addEventListener('click', async () => {
+  const isDdsToPng = state.ddsConvert.direction === 'dds-to-png';
+  const ext = isDdsToPng ? '.png' : '.dds';
+  const defaultName = state.ddsConvert.input 
+    ? path.basename(state.ddsConvert.input, path.extname(state.ddsConvert.input)) + ext
+    : 'output' + ext;
+    
+  const filePath = await ipcRenderer.invoke('save-file', {
+    defaultPath: defaultName,
+    filters: isDdsToPng
+      ? [
+          { name: 'PNG Files', extensions: ['png'] },
+          { name: 'All Files', extensions: ['*'] }
+        ]
+      : [
+          { name: 'DDS Files', extensions: ['dds'] },
+          { name: 'All Files', extensions: ['*'] }
+        ]
+  });
+  
+  if (filePath) {
+    state.ddsConvert.output = filePath;
+    elements.ddsOutput.value = filePath;
+    addLog(`Set output location: ${path.basename(filePath)}`);
+    updateButtons();
+  }
+});
+
+// DDS Converter Run Handler
+elements.ddsRunBtn.addEventListener('click', async () => {
+  if (state.isProcessing) return;
+  
+  setProcessing(true);
+  const isDdsToPng = state.ddsConvert.direction === 'dds-to-png';
+  addLog('========================================');
+  addLog(`Starting ${isDdsToPng ? 'DDS→PNG' : 'PNG→DDS'} conversion...`, 'INFO');
+  addLog(`Input: ${state.ddsConvert.input}`);
+  addLog(`Output: ${state.ddsConvert.output}`);
+  addLog('========================================');
+  
+  try {
+    const result = await ipcRenderer.invoke(
+      'run-dds-converter',
+      isDdsToPng ? 'to-png' : 'to-dds',
+      state.ddsConvert.input,
+      state.ddsConvert.output
+    );
+    
+    if (result.success) {
+      addLog('========================================');
+      addLog('✓ Conversion completed successfully!', 'SUCCESS');
+      addLog(`Output saved to: ${result.output}`, 'SUCCESS');
+      addLog(`Total size: ${result.size} bytes`, 'SUCCESS');
+      addLog('========================================');
+      updateStatus('Complete', `Converted: ${path.basename(result.output)}`);
+    } else {
+      addLog('========================================');
+      addLog(`✗ Conversion failed: ${result.error}`, 'ERROR');
       addLog('========================================');
       updateStatus('Failed', result.error);
     }

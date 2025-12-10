@@ -140,3 +140,64 @@ ipcMain.handle('run-python-tool', async (event, operation, inputPath, outputPath
     });
   });
 });
+
+// DDS Converter Handler
+ipcMain.handle('run-dds-converter', async (event, operation, inputPath, outputPath) => {
+  return new Promise((resolve, reject) => {
+    const pythonScript = path.join(__dirname, 'dds_converter.py');
+    const pythonProcess = spawn('python', [pythonScript, operation, inputPath, outputPath]);
+    
+    let logs = [];
+    let resultData = null;
+    
+    pythonProcess.stdout.on('data', (data) => {
+      const output = data.toString().trim();
+      const lines = output.split('\n');
+      
+      lines.forEach(line => {
+        if (line.startsWith('RESULT:')) {
+          try {
+            resultData = JSON.parse(line.substring(7));
+          } catch (e) {
+            console.error('Failed to parse result:', e);
+          }
+        } else {
+          try {
+            const logEntry = JSON.parse(line);
+            logs.push(logEntry);
+            event.sender.send('python-log', logEntry);
+          } catch (e) {
+            logs.push({ level: 'INFO', message: line });
+            event.sender.send('python-log', { level: 'INFO', message: line });
+          }
+        }
+      });
+    });
+    
+    pythonProcess.stderr.on('data', (data) => {
+      const error = data.toString().trim();
+      logs.push({ level: 'ERROR', message: error });
+      event.sender.send('python-log', { level: 'ERROR', message: error });
+    });
+    
+    pythonProcess.on('close', (code) => {
+      if (code === 0 && resultData) {
+        resolve({ ...resultData, logs });
+      } else {
+        resolve({
+          success: false,
+          error: `Process exited with code ${code}`,
+          logs
+        });
+      }
+    });
+    
+    pythonProcess.on('error', (err) => {
+      reject({
+        success: false,
+        error: err.message,
+        logs
+      });
+    });
+  });
+});

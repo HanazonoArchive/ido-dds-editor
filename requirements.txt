@@ -1,8 +1,10 @@
 # Python Requirements for IDO Compiler & Decompiler
 # Install with: pip install -r requirements.txt
 
-# No external dependencies required!
-# The script uses only Python standard library:
+# DDS Converter dependencies
+Pillow>=10.0.0
+
+# Note: IDO tool (ido_tool.py) uses only Python standard library:
 # - sys
 # - os  
 # - zlib

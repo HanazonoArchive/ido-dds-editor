@@ -9,6 +9,7 @@ A modern, standalone GUI application for compiling and decompiling `.ido` game a
 - **Dual Mode Operation**:
   - **Decompile**: Extract `.ido` files to XML, textures (DDS, TGA, BMP, PNG), or CSV (shop database)
   - **Compile**: Convert XML/binary files back to `.ido` format
+- **DDS Image Converter**: Convert between DDS and PNG formats for texture editing
 - **Smart File Detection** - Automatically detects file types and handles accordingly
 - **Metadata Preservation** - Saves and restores file headers via `.meta` files
 - **EUC-KR Encoding Support** - Proper handling of Korean text encoding
@@ -38,6 +39,7 @@ A modern, standalone GUI application for compiling and decompiling `.ido` game a
 1. Install dependencies:
 ```bash
 npm install
+pip install -r requirements.txt
 ```
 
 2. Verify Python is accessible:
@@ -82,6 +84,19 @@ npm run dev
 **Requirements:**
 - XML files: Header must be embedded or have `.meta` file
 - Binary files: Must have corresponding `.meta` file
+
+### Converting DDS Images
+
+1. Click the **DDS Converter** tab
+2. Choose conversion direction (DDS→PNG or PNG→DDS)
+3. Click **Browse** to select input file
+4. Choose output location
+5. Click **Convert**
+
+**Notes:**
+- DDS to PNG: Extracts uncompressed RGBA8 image
+- PNG to DDS: Creates uncompressed DDS file (compatible with most games)
+- For compressed DDS formats (BC3/DXT5), use specialized tools
 
 ## File Structure
 

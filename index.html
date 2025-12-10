@@ -13,9 +13,9 @@
         <div class="header-content">
           <h1 class="app-title">
             <span class="title-icon">📦</span>
-            IDO Tool
+            IDO & DDS Tool
           </h1>
-          <p class="app-subtitle">Compiler & Decompiler for Game Assets</p>
+          <p class="app-subtitle">Compiler, Decompiler & Converter</p>
         </div>
       </header>
 
@@ -30,6 +30,10 @@
           <button class="tab-button" data-tab="compile">
             <span class="tab-icon">📦</span>
             Compile
+          </button>
+          <button class="tab-button" data-tab="dds-convert">
+            <span class="tab-icon">🖼️</span>
+            DDS Converter
           </button>
         </div>
 
@@ -128,6 +132,66 @@
             <button id="compile-run-btn" class="btn btn-primary btn-large" disabled>
               <span class="btn-icon">▶</span>
               Start Compilation
+            </button>
+          </div>
+        </div>
+
+        <!-- DDS Converter Tab -->
+        <div class="tab-content" id="dds-convert-tab">
+          <div class="form-section">
+            <!-- Conversion Direction Toggle -->
+            <div class="conversion-toggle">
+              <button class="toggle-btn active" data-direction="dds-to-png">
+                <span class="toggle-icon">🖼️→📄</span>
+                DDS to PNG
+              </button>
+              <button class="toggle-btn" data-direction="png-to-dds">
+                <span class="toggle-icon">📄→🖼️</span>
+                PNG to DDS
+              </button>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" id="dds-input-label">
+                <span class="label-icon">🖼️</span>
+                Select DDS File
+              </label>
+              <div class="input-group">
+                <input 
+                  type="text" 
+                  id="dds-input" 
+                  class="form-input" 
+                  placeholder="No DDS file selected..." 
+                  readonly
+                >
+                <button id="dds-input-btn" class="btn btn-secondary">
+                  Browse
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" id="dds-output-label">
+                <span class="label-icon">💾</span>
+                Output PNG File
+              </label>
+              <div class="input-group">
+                <input 
+                  type="text" 
+                  id="dds-output" 
+                  class="form-input" 
+                  placeholder="Output .png file path..." 
+                  readonly
+                >
+                <button id="dds-output-btn" class="btn btn-secondary">
+                  Save As
+                </button>
+              </div>
+            </div>
+
+            <button id="dds-run-btn" class="btn btn-primary btn-large" disabled>
+              <span class="btn-icon">▶</span>
+              <span id="dds-run-text">Convert DDS to PNG</span>
             </button>
           </div>
         </div>
