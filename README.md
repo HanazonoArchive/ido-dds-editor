@@ -7,13 +7,10 @@ A modern, standalone GUI application for compiling, decompiling, converting `.id
 ### Decompilation
 - XML data files
 - DDS/TGA/BMP/PNG textures
-- Gamebryo State Block binaries (`.gb`)
-- Shop Database binaries (`.csv`)
 
 ### Compilation
 - XML files → IDO
 - Binary textures (DDS, TGA, BMP, PNG) → IDO
-- Requires `.meta` file for header information
 
 ## Installation
 
