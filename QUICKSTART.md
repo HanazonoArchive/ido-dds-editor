@@ -91,7 +91,3 @@ Click **"Clear"** button to clear the console log.
 ## Need Help?
 
 Check the full README.md for detailed technical information and advanced usage.
-
----
-
-🎮 **Happy modding!**
