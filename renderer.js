@@ -156,10 +156,10 @@ elements.decompileInputBtn.addEventListener('click', async () => {
     elements.decompileInput.value = filePath;
     addLog(`Selected input file: ${path.basename(filePath)}`);
     
-    // Auto-suggest output path
+    // Auto-suggest output path (without extension - let decompile determine it)
     if (!state.decompile.output) {
       const parsedPath = path.parse(filePath);
-      const suggestedOutput = path.join(parsedPath.dir, `${parsedPath.name}.xml`);
+      const suggestedOutput = path.join(parsedPath.dir, parsedPath.name);
       state.decompile.output = suggestedOutput;
       elements.decompileOutput.value = suggestedOutput;
     }
@@ -170,13 +170,17 @@ elements.decompileInputBtn.addEventListener('click', async () => {
 
 elements.decompileOutputBtn.addEventListener('click', async () => {
   const defaultName = state.decompile.input 
-    ? path.basename(state.decompile.input, '.ido') + '.xml'
-    : 'output.xml';
+    ? path.basename(state.decompile.input, '.ido')
+    : 'output';
     
   const filePath = await ipcRenderer.invoke('save-file', {
     defaultPath: defaultName,
     filters: [
       { name: 'XML Files', extensions: ['xml'] },
+      { name: 'DDS Files', extensions: ['dds'] },
+      { name: 'TGA Files', extensions: ['tga'] },
+      { name: 'PNG Files', extensions: ['png'] },
+      { name: 'BMP Files', extensions: ['bmp'] },
       { name: 'All Files', extensions: ['*'] }
     ]
   });
