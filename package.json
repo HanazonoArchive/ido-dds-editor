@@ -1,6 +1,6 @@
 {
   "name": "ido-editor",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "IDO Compiler & Decompiler - A modern GUI tool for compiling and decompiling game assets",
   "main": "main.js",
   "scripts": {
